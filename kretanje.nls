@@ -1,0 +1,1600 @@
+to move-pacman  
+  ask pacmans
+  [ 
+    if any? ghosts-here with [not eaten? and shape = "ghost"]
+    [ 
+      ask ghosts
+      [ set xcor 0 set ycor 0  ]
+      ask pacmans
+      [ setxy (item 0 home-pos) (item 1 home-pos)
+        set heading 0
+      ]
+      set lives (lives - 1) show "PORAZ"      
+    ]    
+    
+    if brNeprijatelja = "0"
+    [
+      set koordDuhovi lput 100 koordDuhovi
+      set koordDuhovi lput 100 koordDuhovi
+      set koordDuhovi lput 100 koordDuhovi
+      set koordDuhovi lput 100 koordDuhovi
+    ]
+    
+    if brNeprijatelja = "1"
+    [
+      set koordDuhovi lput 100 koordDuhovi
+      set koordDuhovi lput 100 koordDuhovi
+    ]
+    
+    
+    let iksPrvi item 0 koordDuhovi
+    let ipsPrvi item 1 koordDuhovi
+    let iksDrugi item 2 koordDuhovi
+    let ipsDrugi item 3 koordDuhovi
+    let oblikPrvi [shape]of ghosts with [xcor = iksPrvi and ycor = ipsPrvi]
+    let oblikDrugi [shape]of ghosts with [xcor = iksDrugi and ycor = ipsDrugi]
+    
+    ;;AKo neko lovi pacmana dok pokusava izvrsiti pretragu po sirini onda nista od pretrage nego samo biži
+    ifelse algoritam = "pretraga-po-sirini" and (([pxcor]of patch-ahead -1 = iksPrvi and [pycor]of patch-ahead -1 = ipsPrvi) or ([pxcor]of patch-ahead -1 = iksDrugi and [pycor]of patch-ahead -1 = ipsDrugi))
+      [
+        show "1IZA" 
+        if[pxcor]of patch-ahead -1 = iksPrvi and [pycor]of patch-ahead -1 = ipsPrvi
+        [ 
+          let temp []
+          if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+          if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+          if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]     
+          
+          ifelse length temp > 0
+          [
+            random-seed new-seed
+            set temp shuffle temp
+            if first temp = "p"[naprijed]
+            if first temp = "d"[rt 90 naprijed]
+            if first temp = "l"[lt 90 naprijed] 
+          ]
+          ;;Stjeran u kut ,a nista samo se okreni
+          [rt 180]
+          
+        ]
+        
+        if[pxcor]of patch-ahead -1 = iksDrugi and [pycor]of patch-ahead -1 = ipsDrugi
+        [ 
+          let temp []
+          if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+          if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+          if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]   
+          
+          ifelse length temp > 0
+          [
+            random-seed new-seed
+            set temp shuffle temp
+            if first temp = "p"[naprijed]
+            if first temp = "d"[rt 90 naprijed]
+            if first temp = "l"[lt 90 naprijed] 
+          ]
+          [rt 180]
+        ]
+        
+        
+        
+      ]
+      [
+        ifelse ([pcolor = black] of patch-ahead 1 or [pcolor = black] of patch-left-and-ahead 90 1 or [pcolor = black] of patch-right-and-ahead 90 1) and 
+        (([pxcor]of patch-ahead 1 = iksPrvi and [pycor]of patch-ahead 1 = ipsPrvi) or ([pxcor]of patch-ahead 1 = iksDrugi and [pycor]of patch-ahead 1 = ipsDrugi) or 
+          (patch-ahead 2 != nobody and [pxcor]of patch-ahead 2 = iksPrvi and [pycor]of patch-ahead 2 = ipsPrvi) or (patch-ahead 2 != nobody and [pxcor]of patch-ahead 2 = iksDrugi and [pycor]of patch-ahead 2 = ipsDrugi) 
+          or ([pxcor]of patch-left-and-ahead 90 1 = iksPrvi and [pycor]of patch-left-and-ahead 90 1 = ipsPrvi) or ([pxcor]of patch-right-and-ahead 90 1 = iksPrvi and 
+            [pycor]of patch-right-and-ahead 90 1 = ipsPrvi))
+        
+        [
+          ;Ukoliko je crno pretrazujemo
+          if [pcolor = black] of patch-ahead 1 
+          [
+            if[pxcor]of patch-ahead 1 = iksPrvi and [pycor]of patch-ahead 1 = ipsPrvi[show "1ISPRID" rt 180]
+            if[pxcor]of patch-ahead 1 = iksDrugi and [pycor]of patch-ahead 1  = ipsDrugi [show "1ISPRID"  rt 180] 
+            
+            ;Ukoliko je crno pretrazujemo
+            if patch-ahead 2 != nobody and [pcolor = black] of patch-ahead 2 
+            [
+              if[pxcor]of patch-ahead 2 = iksPrvi and [pycor]of patch-ahead 2 = ipsPrvi [show "2ISPRID"  rt 180]
+              if[pxcor]of patch-ahead 2 = iksDrugi and [pycor]of patch-ahead 2 = ipsDrugi[show "2ISPRID"  rt 180] 
+            ]
+            naprijed
+          ]
+          
+          if [pcolor = black] of patch-left-and-ahead 90 1
+          [
+            if[pxcor]of patch-left-and-ahead 90 1 = iksPrvi and [pycor]of patch-left-and-ahead 90 1 = ipsPrvi 
+            [
+              show "1LIVO"
+              ifelse [pcolor = black]of patch-ahead 1 [naprijed][ if [pcolor = black] of patch-ahead -1 [rt 180 naprijed]]
+            ]
+            
+            if[pxcor]of patch-left-and-ahead 90 1 = iksDrugi and [pycor]of patch-left-and-ahead 90 1 = ipsDrugi 
+            [
+              show "1LIVO"
+              ifelse [pcolor = black]of patch-ahead 1 [naprijed][ if [pcolor = black] of patch-ahead -1 [rt 180 naprijed]]
+            ]
+          ]
+          
+          
+          if [pcolor = black] of patch-right-and-ahead 90 1
+          [
+            if[pxcor]of patch-right-and-ahead 90 1 = iksPrvi and [pycor]of patch-right-and-ahead 90 1 = ipsPrvi 
+            [
+              show "1DESNO"
+              ifelse [pcolor = black]of patch-ahead 1 [naprijed][ if [pcolor = black] of patch-ahead -1 [rt 180 naprijed]]
+            ]
+          ]
+          
+          if [pcolor = black] of patch-right-and-ahead 90 1
+          [
+            if[pxcor]of patch-right-and-ahead 90 1 = iksDrugi and [pycor]of patch-right-and-ahead 90 1 = ipsDrugi
+            [
+              show "1DESNO"
+              ifelse [pcolor = black]of patch-ahead 1 [naprijed][ if [pcolor = black] of patch-ahead -1 [rt 180 naprijed]]
+            ]
+          ] 
+        ]
+        [
+          if algoritam = "pretraga-po-id-patcha"[pretraga-po-id-patcha]
+          if algoritam = "pretraga-po-posjecenosti"[pretraga-po-posjecenosti]    
+          if algoritam = "pohlepni-algoritam"[pohlepni-algoritam ]    
+          if algoritam = "astar"[astar]    
+          if algoritam = "pretraga-po-sirini"[pretraga-po-sirini] 
+        ]
+        ;; Ghosts
+        if any? ghosts-here with [not eaten? and shape = "ghost"]
+        [ 
+          ask ghosts
+          [ set xcor 0 set ycor 0  ]
+          ask pacmans
+          [ setxy (item 0 home-pos) (item 1 home-pos)
+            set heading 0
+          ]
+          set lives (lives - 1) show "IZGUBIJA"
+        ]
+      ]]
+end
+
+to naprijed 
+  ask patch-here
+  [
+    set istrazen? true
+    set brPosjeta (brPosjeta + 1)
+    ;set plabel brPosjeta
+  ]
+  if [pellet-grid? = true]of patch-here  [ set pojedenihKolacica ( pojedenihKolacica + 1) set pellet-grid? false]
+  fd 1
+  set korak (korak + 1) 
+  set istrazen? true
+  consume
+  
+end
+
+;******************************************************************************************************************************************************************
+to pretraga-po-sirini
+  ifelse [pojedenihKolacica]of pacman 0 = brojKolacica [stop]
+  [
+    ifelse[pcolor = grey]of patch-left-and-ahead 90 1 or [pcolor = grey]of patch-right-and-ahead 90 1
+    [ naprijed]
+    [
+      ;;Zauzeto sve
+      if [pcolor = blue] of patch-left-and-ahead 90 1 and [pcolor = blue] of patch-ahead 1 and [pcolor = blue] of patch-right-and-ahead 90 1
+      [
+        rt 180    
+      ] 
+      
+      ifelse length otvoreni > 1 
+      [ 
+        ;;Ako se nalazimo na cilju ajde di e slobodno
+        ifelse [oznaka = first otvoreni] of patch-here
+        [
+          let temp []
+          if [pcolor = black and istrazen? = false] of patch-ahead 1 [set temp lput "p" temp]
+          if [pcolor = black and istrazen? = false] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+          if [pcolor = black and istrazen? = false] of patch-right-and-ahead 90 1 [set temp lput "d" temp]      
+          
+          ;;Ukoliko je duljina ove temp liste 0 znaci da su svi cvorovi oko vec istrazeni pa idemo random od svih , ako je len > 0 onda ajde tamo di nije istrazeno
+          ifelse length temp = 0
+          [
+            set otvoreni remove [oznaka]of patch-here otvoreni 
+            if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+            if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+            if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]     
+            
+            random-seed new-seed
+            set temp shuffle temp
+            if first temp = "p"[naprijed]
+            if first temp = "d"[rt 90 naprijed]
+            if first temp = "l"[lt 90 naprijed]
+            
+            
+          ]
+          
+          ;;Ako je duljina > 0
+          [
+            if length temp = 1 [set otvoreni remove [oznaka]of patch-here otvoreni ]
+            random-seed new-seed
+            set temp shuffle temp
+            if first temp = "p"[naprijed]
+            if first temp = "d"[rt 90 naprijed]
+            if first temp = "l"[lt 90 naprijed]
+            ;rt 180
+            
+          ]
+          
+          
+          ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+          if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+          [
+            let broj 0    
+            if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+            if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+            if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+            if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+            
+            if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+          ]
+          
+        ]
+        [
+          ;;Ako se ne nalazimo na cilju ali cilj nam je u susjedstvu, duljina niza otvoreni mora obavezno biti pozitivna
+          ifelse [oznaka = first otvoreni] of patch-left-and-ahead 90 1  or [oznaka = first otvoreni] of patch-right-and-ahead 90 1 or [oznaka = first otvoreni] of patch-ahead 1  or [oznaka = first otvoreni] of patch-ahead -1 
+          [    
+            ;;Ako je trenutni cilj na patchu livo
+            if [oznaka = first otvoreni] of patch-left-and-ahead 90 1 
+            [
+              lt 90
+              naprijed
+            ]  
+            
+            ;;Ako je trenutni cilj na patchu pravo
+            if [oznaka = first otvoreni] of patch-ahead 1
+            [
+              naprijed
+            ]
+            ;;Ako je trenutni cilj na patchu desno
+            if [oznaka = first otvoreni] of patch-right-and-ahead 90 1
+            [
+              rt 90
+              naprijed
+            ]
+            
+            ;;Ako je trenutni cilj na patchu iza
+            if [oznaka = first otvoreni] of patch-ahead -1
+            [
+              rt 180
+              naprijed
+            ]
+          ]
+          
+          ;;else-trenutni cilj nije na trenutnom ni susjednom patch
+          [   
+            provjeri
+            
+            ifelse [brPosjeta = 0] of patch-here  [rt 180 naprijed] 
+            [
+              
+              
+              ;;PP - procjena puta
+              ;;O - optimalno
+              ;;H - heuristika
+              
+              let PPpravo 0
+              let PPlivo 0
+              let PPdesno 0
+              
+              let Hpravo 0
+              let Hlivo 0
+              let Hdesno 0
+              
+              let Opravo 0
+              let Olivo 0
+              let Odesno 0
+              
+              
+              
+              ;;Koordinate trazenog patcha
+              let x 0
+              let y 0
+              ask patches with [oznaka = first otvoreni]
+              [
+                set x pxcor
+                set y pycor
+              ]
+              
+              
+              ;;Livo
+              if [pcolor != blue] of patch-left-and-ahead 90 1
+              [
+                ;;Manhattan udaljenost
+                set PPlivo (abs(x - [pxcor] of patch-left-and-ahead 90 1) + abs(y - [pycor] of patch-left-and-ahead 90 1))
+                
+                ;;Heuristika
+                if [istrazen? = false] of patch-here
+                [
+                  set istrazen? true
+                  set Hlivo heuristika + 1
+                ]
+                set Olivo Hlivo + PPlivo
+              ]
+              
+              ;;Pravo
+              if [pcolor != blue] of patch-ahead 1
+              [
+                ;;Manhattan udaljenost
+                set PPpravo (abs(x - [pxcor] of patch-ahead 1) + abs(y - [pycor] of patch-ahead 1))
+                
+                ;;Heuristika
+                if [istrazen? = false] of patch-here
+                [
+                  set istrazen? true
+                  set Hpravo heuristika + 1
+                ]
+                set Opravo Hpravo + PPpravo
+              ]
+              
+              ;;Desno
+              if [pcolor != blue] of patch-right-and-ahead 90 1
+              [
+                ;;Manhattan udaljenost
+                set PPdesno (abs(x - [pxcor] of patch-right-and-ahead 90 1) + abs(y - [pycor] of patch-right-and-ahead 90 1))
+                
+                ;;Heuristika
+                if [istrazen? = false] of patch-here
+                [
+                  set istrazen? true
+                  set Hdesno heuristika + 1
+                ]
+                
+                set Odesno Hdesno + PPdesno
+              ]
+              
+              ;;0 mjenjamo u 9999 radi lakseg usporedivanja
+              if Olivo = 0 [set Olivo 9999]
+              if Opravo = 0 [set Opravo 9999]
+              if Odesno = 0 [set Odesno 9999]
+              
+              
+              ;;Livo 1.opcija
+              if Olivo < Odesno and Olivo < Opravo
+              [
+                lt 90
+                naprijed
+              ]
+              
+              ;;Pravo 1.opcija
+              if Opravo < Odesno and Opravo < Olivo 
+              [
+                naprijed
+              ]
+              
+              ;;Desno 1.opcija
+              if Odesno < Olivo and Odesno < Opravo
+              [
+                rt 90
+                naprijed
+              ]
+              
+              ;;Ako je pravo i desno najblize
+              if Opravo < Olivo and Opravo = Odesno 
+              [
+                let r 0
+                set r random 2
+                ifelse r = 0
+                [naprijed]
+                [rt 90 naprijed]    
+              ]
+              
+              ;;Ako je pravo i livo najblize
+              if Opravo < Odesno and Opravo = Olivo 
+              [
+                
+                let r 0
+                random-seed new-seed
+                set r random 2
+                ifelse r = 0
+                [naprijed]
+                [lt 90 naprijed]    
+              ]
+              
+              ;;Ako je desno i livo najblize
+              if Odesno < Opravo and Odesno = Olivo 
+              [                          
+                let r 0
+                random-seed new-seed
+                set r random 2
+                ifelse r = 0
+                [rt 90 naprijed]
+                [lt 90 naprijed]    
+              ]
+              
+              ;;Ako je i livo i desno i pravo najblize
+              if Odesno = Olivo and Odesno = Opravo
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]    
+              ]
+              
+              
+              
+              ;Ukoliko se oznaka nalazi u listi otvoreni provjeri sve uvjeti i i brisi ako se moze
+              if member? [oznaka] of patch-here otvoreni
+              [
+                let broj 0    
+                if [istrazen? = true] of patch-ahead 1  [set broj broj + 1]
+                if [istrazen? = true] of patch-ahead -1  [set broj broj + 1]
+                if [istrazen? = true] of patch-left-and-ahead 90 1  [set broj broj + 1]
+                if [istrazen? = true] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+                
+                if broj = 4 [set otvoreni remove oznaka otvoreni]
+              ]
+            ]
+          ]
+        ]
+      ]
+      
+      
+      ;;Ako je duljina niza 0 ajde di mozes,ukoliko nije,ajde po optimalnom putu
+      [
+        
+        let temp []
+        if [pcolor = black and istrazen? = false] of patch-ahead 1 [set temp lput "p" temp]
+        if [pcolor = black and istrazen? = false] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+        if [pcolor = black and istrazen? = false] of patch-right-and-ahead 90 1 [set temp lput "d" temp]      
+        
+        ;;Ukoliko je duljina ove temp liste 0 znaci da su svi cvorovi oko vec istrazeni pa idemo random od svih , ako je len > 0 onda ajde tamo di nije istrazeno
+        ifelse length temp = 0
+        [
+          if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+          if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+          if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]     
+          
+          random-seed new-seed
+          set temp shuffle temp
+          if first temp = "p"[naprijed]
+          if first temp = "d"[rt 90 naprijed]
+          if first temp = "l"[lt 90 naprijed]
+        ]
+        
+        ;;Ako je duljina > 0
+        [
+          random-seed new-seed
+          set temp shuffle temp
+          if first temp = "p"[naprijed]
+          if first temp = "d"[rt 90 naprijed]
+          if first temp = "l"[lt 90 naprijed]
+        ]
+        
+        ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+        if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+        [
+          let broj 0    
+          if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+          if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+          if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+          if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+          
+          if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+        ] 
+        
+      ] 
+      ;;Ovde je bila ova funkcija ukoliko se NE nalazi
+      
+      ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+      if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+      [
+        let broj 0    
+        if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+        if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+        if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+        if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+        
+        if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+      ]
+      provjeri
+      show otvoreni
+    ]
+  ]
+end
+
+;******************************************************************************************************************************************************************
+to astar
+  ifelse [pojedenihKolacica]of pacman 0 = brojKolacica - 1[stop]
+  [
+    
+    ;show iksPrvi show ipsPrvi show iksDrugi show ipsDrugi
+    ;show koordDuhovi
+    
+    
+    
+    
+    
+    ;;Ako se vidi duh
+    
+    
+    
+    
+    ;****************************************
+    ;;Zauzeto sve
+    if [pcolor = blue] of patch-left-and-ahead 90 1 and [pcolor = blue] of patch-ahead 1 and [pcolor = blue] of patch-right-and-ahead 90 1
+    [
+      rt 180    
+    ]    
+    
+    
+    ifelse length otvoreni > 1 
+    [ 
+      ifelse [oznaka = first otvoreni] of patch-here
+      [
+        let temp []
+        if [pcolor = black and istrazen? = false] of patch-ahead 1 [set temp lput "p" temp]
+        if [pcolor = black and istrazen? = false] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+        if [pcolor = black and istrazen? = false] of patch-right-and-ahead 90 1 [set temp lput "d" temp]      
+        
+        ;;Ukoliko je duljina ove temp liste 0 znaci da su svi cvorovi oko vec istrazeni pa idemo random od svih , ako je len > 0 onda ajde tamo di nije istrazeno
+        ifelse length temp = 0
+        [
+          set otvoreni remove [oznaka]of patch-here otvoreni 
+          if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+          if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+          if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]     
+          
+          random-seed new-seed
+          set temp shuffle temp
+          if first temp = "p"[naprijed]
+          if first temp = "d"[rt 90 naprijed]
+          if first temp = "l"[lt 90 naprijed]
+          
+        ]
+        
+        ;;Ako je duljina > 0
+        [
+          if length temp = 1 [set otvoreni remove [oznaka]of patch-here otvoreni ]
+          random-seed new-seed
+          set temp shuffle temp
+          if first temp = "p"[naprijed]
+          if first temp = "d"[rt 90 naprijed]
+          if first temp = "l"[lt 90 naprijed]
+          
+          
+        ]
+        
+        
+        ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+        if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+        [
+          let broj 0    
+          if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+          if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+          if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+          if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+          
+          if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+        ]
+        
+      ]
+      [
+        ;;Ako se ne nalazimo na cilju ali cilj nam je u susjedstvu, duljina niza otvoreni mora obavezno biti pozitivna
+        ifelse [oznaka = first otvoreni] of patch-left-and-ahead 90 1  or [oznaka = first otvoreni] of patch-right-and-ahead 90 1 or [oznaka = first otvoreni] of patch-ahead 1 
+        [    
+          
+          ;;Ako je trenutni cilj na patchu livo
+          if [oznaka = first otvoreni] of patch-left-and-ahead 90 1 
+          [
+            lt 90
+            naprijed
+          ]  
+          
+          ;;Ako je trenutni cilj na patchu pravo
+          if [oznaka = first otvoreni] of patch-ahead 1
+          [
+            naprijed
+          ]                                                       ;;Ako je trenutni cilj na patchu desno
+          if [oznaka = first otvoreni] of patch-right-and-ahead 90 1
+          [
+            rt 90
+            naprijed
+          ]
+        ]
+        
+        ;;else-trenutni cilj nije na trenutnom ni susjednom patch
+        [
+          provjeri
+          
+          ;;PP - procjena puta
+          ;;O - optimalno
+          ;;H - heuristika
+          
+          let PPpravo 0
+          let PPlivo 0
+          let PPdesno 0
+          
+          let Hpravo 0
+          let Hlivo 0
+          let Hdesno 0
+          
+          let Opravo 0
+          let Olivo 0
+          let Odesno 0
+          
+          
+          
+          ;;Koordinate trazenog patcha
+          let x 0
+          let y 0
+          ask patches with [oznaka = first otvoreni]
+          [
+            set x pxcor
+            set y pycor
+          ]
+          
+          
+          ;;Livo
+          if [pcolor != blue] of patch-left-and-ahead 90 1
+          [
+            ;;Manhattan udaljenost
+            set PPlivo (abs(x - [pxcor] of patch-left-and-ahead 90 1) + abs(y - [pycor] of patch-left-and-ahead 90 1))
+            
+            ;;Heuristika
+            if [istrazen? = false] of patch-here
+            [
+              set istrazen? true
+              set Hlivo heuristika + 1
+            ]
+            set Olivo Hlivo + PPlivo
+          ]
+          
+          ;;Pravo
+          if [pcolor != blue] of patch-ahead 1
+          [
+            ;;Manhattan udaljenost
+            set PPpravo (abs(x - [pxcor] of patch-ahead 1) + abs(y - [pycor] of patch-ahead 1))
+            
+            ;;Heuristika
+            if [istrazen? = false] of patch-here
+            [
+              set istrazen? true
+              set Hpravo heuristika + 1
+            ]
+            set Opravo Hpravo + PPpravo
+          ]
+          
+          ;;Desno
+          if [pcolor != blue] of patch-right-and-ahead 90 1
+          [
+            ;;Manhattan udaljenost
+            set PPdesno (abs(x - [pxcor] of patch-right-and-ahead 90 1) + abs(y - [pycor] of patch-right-and-ahead 90 1))
+            
+            ;;Heuristika
+            if [istrazen? = false] of patch-here
+            [
+              set istrazen? true
+              set Hdesno heuristika + 1
+            ]
+            
+            set Odesno Hdesno + PPdesno
+          ]
+          
+          ;;0 mjenjamo u 9999 radi lakseg usporedivanja
+          if Olivo = 0 [set Olivo 9999]
+          if Opravo = 0 [set Opravo 9999]
+          if Odesno = 0 [set Odesno 9999]
+          
+          
+          ;;Livo 1.opcija
+          if Olivo < Odesno and Olivo < Opravo
+          [
+            lt 90
+            naprijed
+          ]
+          
+          ;;Pravo 1.opcija
+          if Opravo < Odesno and Opravo < Olivo
+          [
+            naprijed
+          ]
+          
+          ;;Desno 1.opcija
+          if Odesno < Olivo and Odesno < Opravo
+          [
+            rt 90
+            naprijed
+          ]
+          
+          ;;Ako je pravo i desno najblize
+          if Opravo < Olivo and Opravo = Odesno 
+          [
+            let r 0
+            set r random 2
+            ifelse r = 0
+            [naprijed]
+            [rt 90 naprijed]    
+          ]
+          
+          ;;Ako je pravo i livo najblize
+          if Opravo < Odesno and Opravo = Olivo 
+          [
+            
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0
+            [naprijed]
+            [lt 90 naprijed]    
+          ]
+          
+          ;;Ako je desno i livo najblize
+          if Odesno < Opravo and Odesno = Olivo 
+          [                          let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0
+            [rt 90 naprijed]
+            [lt 90 naprijed]    
+          ]
+          
+          ;;Ako je i livo i desno i pravo najblize
+          if Odesno = Olivo and Odesno = Opravo
+          [
+            let r 0
+            random-seed new-seed
+            set r random 3
+            if r = 0 [lt 90 naprijed]
+            if r = 1 [naprijed]
+            if r = 2 [rt 90 naprijed]    
+          ]
+          
+          
+          
+          ;Ukoliko se oznaka nalazi u listi otvoreni provjeri sve uvjeti i i brisi ako se moze
+          if member? [oznaka] of patch-here otvoreni
+          [
+            let broj 0    
+            if [istrazen? = true] of patch-ahead 1  [set broj broj + 1]
+            if [istrazen? = true] of patch-ahead -1  [set broj broj + 1]
+            if [istrazen? = true] of patch-left-and-ahead 90 1  [set broj broj + 1]
+            if [istrazen? = true] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+            
+            if broj = 4 [set otvoreni remove oznaka otvoreni]
+          ]
+          
+          
+        ]
+        
+      ]
+      
+    ]
+    ;;Ako je duljina niza 0 ajde di mozes,ukoliko nije,ajde po optimalnom putu
+    [
+      
+      let temp []
+      if [pcolor = black and istrazen? = false] of patch-ahead 1 [set temp lput "p" temp]
+      if [pcolor = black and istrazen? = false] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+      if [pcolor = black and istrazen? = false] of patch-right-and-ahead 90 1 [set temp lput "d" temp]      
+      
+      ;;Ukoliko je duljina ove temp liste 0 znaci da su svi cvorovi oko vec istrazeni pa idemo random od svih , ako je len > 0 onda ajde tamo di nije istrazeno
+      ifelse length temp = 0
+      [
+        if [pcolor = black] of patch-ahead 1 [set temp lput "p" temp]
+        if [pcolor = black] of patch-left-and-ahead 90 1 [set temp lput "l" temp]     
+        if [pcolor = black] of patch-right-and-ahead 90 1 [set temp lput "d" temp]     
+        
+        random-seed new-seed
+        set temp shuffle temp
+        if first temp = "p"[naprijed]
+        if first temp = "d"[rt 90 naprijed]
+        if first temp = "l"[lt 90 naprijed]
+      ]
+      
+      ;;Ako je duljina > 0
+      [
+        random-seed new-seed
+        set temp shuffle temp
+        if first temp = "p"[naprijed]
+        if first temp = "d"[rt 90 naprijed]
+        if first temp = "l"[lt 90 naprijed]
+      ]
+      
+      ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+      if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+      [
+        let broj 0    
+        if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+        if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+        if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+        if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+        
+        if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+      ] 
+      
+    ] 
+    ;;Ukoliko se oznaka ne nalazi u listi otvoreni provjeri sve uvjeti i dodaj ako se moze i ako se na njoj nalazi kolacic
+    if not member? [oznaka] of patch-here otvoreni and  member? [oznaka] of patch-here lista
+    [
+      let broj 0    
+      if [istrazen? = false] of patch-ahead 1  [set broj broj + 1]
+      if [istrazen? = false] of patch-ahead -1  [set broj broj + 1]
+      if [istrazen? = false] of patch-left-and-ahead 90 1  [set broj broj + 1]
+      if [istrazen? = false] of patch-right-and-ahead 90 1  [set broj broj + 1]     
+      
+      if broj > 0 [set otvoreni lput [oznaka] of patch-here otvoreni]
+    ] 
+    
+    
+    
+    
+    
+    provjeri
+    show otvoreni
+  ]  
+  
+end
+
+;******************************************************************************************************************************************************************
+to provjeri
+  
+  ;;Provjeri sve crne patcheve koji imaju kolacic (nalaze se u listi) da li su i susjedi istrazeni,ako jesu,izbaci taj cvor iz liste otvorenih
+  
+  if length lista > 0
+  [
+    foreach lista
+    [
+      let broj 0
+      ;;X i Y koordinate 
+      let x [pxcor] of one-of patches with [oznaka = ?]
+      let y [pycor] of one-of patches with [oznaka = ?]
+      
+      ask patches with [pxcor = (x + 1) and pycor = y][if istrazen? = true [set broj broj + 1]]
+      ask patches with [pxcor = x and pycor = (y + 1)][if istrazen? = true [set broj broj + 1]]
+      ask patches with [pxcor = (x - 1) and pycor = y][if istrazen? = true [set broj broj + 1]]
+      ask patches with [pxcor = x and pycor = (y - 1)][if istrazen? = true [set broj broj + 1]]
+      
+      
+      if broj = 4 
+      [
+        ask patches with [pxcor = x and pycor = y]
+        [
+          set lista remove [oznaka] of one-of patches with [pxcor = x and pycor = y] lista
+          set otvoreni remove [oznaka] of one-of patches with [pxcor = x and pycor = y] otvoreni
+          show "Maknut" show oznaka
+        ]
+      ]
+    ]
+  ]
+end
+
+
+
+;******************************************************************************************************************************************************************
+to pohlepni-algoritam  
+  
+  ifelse length lista <= 0  and lives <= 0 [stop]
+  [
+    ifelse[pcolor = grey]of patch-left-and-ahead 90 1 or [pcolor = grey]of patch-right-and-ahead 90 1
+    [ naprijed]
+    [
+      ;;Zauzeto sve
+      if [pcolor = blue] of patch-left-and-ahead 90 1 and [pcolor = blue] of patch-ahead 1 and [pcolor = blue] of patch-right-and-ahead 90 1
+      [
+        rt 180    
+      ]
+      
+      if [pcolor = "grey"] of patch-ahead -1
+      [
+        rt 180
+        fd 1
+      ]
+      
+      
+      
+      if member? [oznaka] of patch-here lista
+      [
+        ifelse length lista > 0 [set lista remove oznaka lista]
+        [stop]
+        
+        ;;show "lista" show length lista
+      ]
+      ;;Da ne puca program ako je lista prazna jer se iz nje dohvaca
+      if length lista <= 0 [stop]
+      
+      ifelse [oznaka = first lista] of patch-left-and-ahead 90 1  or [oznaka = first lista] of patch-right-and-ahead 90 1 or [oznaka = first lista] of patch-ahead 1 
+      [
+        
+        
+        ;;Ako je trenutni cilj na patchu livo
+        if [oznaka = first lista] of patch-left-and-ahead 90 1 
+        [
+          lt 90
+          naprijed
+        ]
+        
+        
+        ;;Ako je trenutni cilj na patchu pravo
+        if [oznaka = first lista] of patch-ahead 1
+        [
+          naprijed
+        ]
+        
+        
+        
+        ;;Ako je trenutni cilj na patchu desno
+        if [oznaka = first lista] of patch-right-and-ahead 90 1
+        [
+          rt 90
+          naprijed
+        ]
+        
+      ]
+      
+      ;else od prvog ifelse uvjeta 
+      [
+        
+        
+        ;;Odnosi se na udaljenost npr.patcha lijevo do neposjecenog patcha s najmanjom oznakom
+        let pravo 0
+        let livo 0
+        let desno 0
+        let iza 0
+        
+        ;;Dohvacanje koordinata patcha s najmanjom oznakom
+        let y 0
+        let x 0
+        ask patches with [oznaka = first lista]
+        [
+          set x pxcor
+          set y pycor
+        ]
+        
+        if [pcolor != blue] of patch-left-and-ahead 90 1
+        [
+          set livo sqrt (((([pxcor] of patch-left-and-ahead 90 1) - x)^ 2) + ((([pycor] of patch-left-and-ahead 90 1) - y) ^ 2))
+        ]
+        
+        if [pcolor != blue] of patch-ahead 1
+        [
+          set pravo sqrt (((([pxcor] of patch-ahead 1) - x)^ 2) + ((([pycor] of patch-ahead 1) - y) ^ 2))
+        ]
+        
+        if [pcolor != blue] of patch-ahead -1
+        [
+          set iza sqrt (((([pxcor] of patch-ahead 1) - x)^ 2) + ((([pycor] of patch-ahead 1) - y) ^ 2))
+        ]
+        
+        if [pcolor != blue] of patch-right-and-ahead 90 1
+        [
+          set desno sqrt (((([pxcor] of patch-right-and-ahead 90 1) - x)^ 2) + ((([pycor] of patch-right-and-ahead 90 1) - y) ^ 2))
+        ]
+        
+        ;;0 mjenjamo u 9999 radi lakseg usporedivanja
+        if livo = 0 [set livo 9999]
+        if pravo = 0 [set pravo 9999]
+        if desno = 0 [set desno 9999]
+        
+        
+        ;;Ako je livo najblize
+        if livo < pravo and livo < desno
+        [
+          lt 90
+          naprijed
+        ]
+        
+        ;;Ako je desno najblize
+        if desno < pravo and desno < livo 
+        [
+          rt 90
+          naprijed
+        ]
+        
+        ;;Ako je pravo najblize
+        if pravo < desno and pravo < livo 
+        [
+          naprijed
+        ]
+        
+        
+        ;;Ako je pravo i desno najblize
+        if pravo < livo and pravo = desno 
+        [
+          let r 0
+          random-seed new-seed
+          set r random 2
+          ifelse r = 0
+          [naprijed]
+          [rt 90 naprijed]    
+        ]
+        
+        ;;Ako je pravo i livo najblize
+        if pravo < desno and pravo = livo 
+        [
+          let r 0
+          random-seed new-seed
+          set r random 2
+          ifelse r = 0
+          [naprijed]
+          [lt 90 naprijed]    
+        ]
+        
+        ;;Ako je desno i livo najblize
+        if desno < pravo and desno = livo 
+        [
+          let r 0
+          random-seed new-seed
+          set r random 2
+          ifelse r = 0
+          [rt 90 naprijed]
+          [lt 90 naprijed]    
+        ]
+        
+        
+        ;show "livo"
+        ;show livo
+        ;show "pravo"
+        ;show pravo
+        ;show "desno"
+        ;show desno
+        
+      ]]
+    
+    
+    show lista
+  ]
+end
+
+;******************************************************************************************************************************************************************
+;;Algoritam pokusava posjetiti onaj patch s vecim IDom ukoliko ga vec nije posjetio
+to pretraga-po-id-patcha
+  ifelse [pojedenihKolacica]of pacman 0 >= brojKolacica[set pojedenihKolacica brojKolacica stop]
+  [
+    let livo patch-left-and-ahead 90 1
+    let pravo patch-ahead 1
+    let desno patch-right-and-ahead 90 1
+    
+    ;;Slobodno pravo livo i desno
+    if [pcolor != blue] of livo and [pcolor != blue] of pravo and [pcolor != blue] of desno
+    [
+      ;;Ako je livo 1. opcija
+      if [oznaka] of livo > [oznaka] of pravo and [oznaka] of livo > [oznaka] of desno 
+      [
+        ifelse [istrazen?] of livo = false
+        [
+          lt 90 
+          naprijed
+        ]
+        ;Ako je livo istrazen idemo tamo di je veća oznaka
+        [
+          ;;Ako je desno veca oznaka
+          ifelse [oznaka] of desno > [oznaka] of pravo
+          [
+            ifelse [istrazen?] of desno = false
+            [
+              rt 90
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of pravo = false
+              [
+                naprijed
+              ]
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]
+              ]            
+            ]    
+          ]
+          ;;Ako je pravo veca oznaka
+          [
+            ifelse [istrazen?] of pravo = false
+            [
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of desno = false
+              [
+                rt 90 
+                naprijed
+              ]
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]
+              ]            
+            ] 
+          ]
+        ]      
+      ]
+      
+      ;;Ako je desno 1.opcija
+      if [oznaka] of desno > [oznaka] of pravo and [oznaka] of desno > [oznaka] of livo 
+      [
+        ifelse [istrazen?] of desno = false
+        [
+          rt 90 
+          naprijed
+        ]
+        ;Ako je desno zauzeto idemo tamo di je veća oznaka
+        [
+          ;;Ako je livo veca oznaka
+          ifelse [oznaka] of livo > [oznaka] of pravo
+          [
+            ifelse [istrazen?] of livo = false
+            [
+              lt 90
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of pravo = false
+              [
+                naprijed
+              ]
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]
+              ]            
+            ]  
+          ]
+          ;;Ako je pravo veca oznaka
+          [
+            ifelse [istrazen?] of pravo = false
+            [
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of desno = false
+              [
+                lt 90 
+                naprijed
+              ]
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]
+              ]            
+            ] 
+          ]
+        ]  
+      ]
+      ;;Ako je pravo 1.opcija
+      if [oznaka] of pravo > [oznaka] of livo and [oznaka] of pravo > [oznaka] of desno 
+      [
+        ifelse [istrazen?] of pravo = false
+        [
+          naprijed
+        ]
+        ;Ako je pravo zauzeto idemo tamo di je veća oznaka
+        [
+          ;;Ako je desno veca oznaka
+          ifelse [oznaka] of desno > [oznaka] of livo
+          [
+            ifelse [istrazen?] of desno = false
+            [
+              rt 90
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of livo = false
+              [
+                lt 90
+                naprijed
+              ]
+              [
+                let r 0
+                random-seed new-seed
+                set r random 3
+                if r = 0 [lt 90 naprijed]
+                if r = 1 [naprijed]
+                if r = 2 [rt 90 naprijed]
+              ]            
+            ]                  
+          ]
+          ;;Ako je livo veca oznaka
+          [
+            ifelse [istrazen?] of livo = false
+            [
+              lt 90 
+              naprijed
+            ]
+            [
+              ifelse[istrazen?] of desno = false
+              [
+                rt 90 
+                naprijed
+              ]
+              [
+                let r 0
+                set r random 3
+                random-seed new-seed
+                if r = 0 [naprijed]
+                if r = 1 [rt 90 naprijed]
+                if r = 2 [lt 90 naprijed]
+                
+              ]            
+            ] 
+          ]
+        ]  
+      ]
+    ]
+    
+    ;;Slobodno pravo i livo
+    if [pcolor != blue] of livo and [pcolor != blue] of pravo and [pcolor = blue] of desno
+    [
+      ;;Ako je livo prva opcija
+      if [oznaka] of livo > [oznaka] of pravo
+      [
+        ifelse [istrazen?] of livo = false
+        [
+          lt 90 
+          naprijed
+        ]
+        ;Ako je livo zauzeto idemo pravo jer je desno zauzeto
+        [
+          ifelse[istrazen?] of pravo = false
+          [
+            naprijed
+          ]
+          [
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0 [lt 90 naprijed][naprijed]
+          ]
+        ] 
+      ]
+      ;;Ako je pravo prva opcija
+      if [oznaka] of pravo > [oznaka] of livo 
+      [
+        ifelse [istrazen?] of pravo = false
+        [
+          naprijed
+        ]
+        ;Ako je pravo zauzeto idemo livo jer je desno zauzeto
+        [
+          ifelse[istrazen?] of livo = false
+          [
+            lt 90
+            naprijed
+          ]
+          [
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0 [lt 90 naprijed][naprijed]
+          ]
+        ] 
+      ]
+    ]
+    
+    ;;Slobodno pravo i desno
+    if [pcolor = blue] of livo and [pcolor != blue] of pravo and [pcolor != blue] of desno
+    [    
+      ;;Ako je desno 1.opcija
+      if [oznaka] of desno > [oznaka] of pravo
+      [
+        ifelse [istrazen?] of desno = false
+        [
+          rt 90 
+          naprijed
+        ]
+        ;Ako je desno zauzeto idemo pravo jer je livo zauzeto
+        [
+          ifelse[istrazen?] of pravo = false
+          [
+            naprijed
+          ]
+          [
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0 [naprijed][rt 90 naprijed]
+          ]
+        ] 
+      ]
+      ;;Ako je pravo 1.opcija
+      if [oznaka] of pravo > [oznaka] of desno 
+      [
+        ifelse [istrazen?] of pravo = false
+        [
+          naprijed
+        ]
+        ;Ako je pravo zauzeto idemo desno jer je livo zauzeto
+        [
+          ifelse[istrazen?] of desno = false
+          [
+            rt 90
+            naprijed
+          ]
+          [
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0 [naprijed][rt 90 naprijed]
+          ]
+        ] 
+      ]
+    ]
+    
+    ;;Slobodno livo i desno
+    if [pcolor != blue] of livo and [pcolor = blue] of pravo and [pcolor != blue] of desno
+    [
+      ;;Ako je livo 1.opcija
+      if [oznaka] of livo > [oznaka] of desno 
+      [
+        ifelse [istrazen?] of livo = false
+        [
+          lt 90 
+          naprijed
+        ]
+        ;Ako je livo zauzeto idemo desno jer je pravo zauzeto
+        [
+          ifelse[istrazen?] of desno = false
+          [
+            rt 90
+            naprijed
+          ]
+          [
+            let r 0
+            random-seed new-seed
+            set r random 2
+            ifelse r = 0 [lt 90 naprijed][rt 90 naprijed]
+          ]
+        ] 
+      ]
+      ;;Ako je desno 1.opcija
+      if [oznaka] of desno > [oznaka] of livo 
+      [
+        ifelse [istrazen?] of desno = false
+        [
+          rt 90 
+          naprijed
+        ]
+        ;Ako je desno zauzeto idemo livo jer je pravo zauzeto
+        [
+          ifelse[istrazen?] of livo = false
+          [
+            lt 90
+            naprijed
+          ]
+          [
+            let r 0
+            set r random 2
+            ifelse r = 0 [lt 90 naprijed][rt 90 naprijed]
+          ]
+        ] 
+      ]
+    ]
+    
+    ;;Slobodno naprid
+    if [pcolor = blue] of livo and [pcolor != blue] of pravo and [pcolor = blue] of desno 
+    [
+      naprijed
+    ]
+    
+    ;;Slobodno livo
+    if [pcolor != blue] of livo and [pcolor = blue] of pravo and [pcolor = blue] of desno
+    [
+      lt 90
+      naprijed
+    ]
+    
+    ;;Slobodno desno
+    if [pcolor = blue] of livo and [pcolor = blue] of pravo and [pcolor != blue] of desno 
+    [
+      rt 90
+      naprijed
+    ]
+    
+    ;;Zauzeto sve
+    if [pcolor = blue] of livo and [pcolor = blue] of pravo and [pcolor = blue] of desno 
+    [
+      rt 180
+      
+    ]
+    
+    if not member? oznaka lista 
+    [set lista lput oznaka lista]
+    ;;show lista
+  ]
+end
+
+;******************************************************************************************************************************************************************
+
+to pretraga-po-posjecenosti  
+  ifelse [pojedenihKolacica]of pacman 0 = brojKolacica[stop]
+  [
+    
+    let livo patch-left-and-ahead 90 1
+    let pravo patch-ahead 1
+    let desno patch-right-and-ahead 90 1
+    
+    
+    ;;Slobodno pravo livo i desno
+    if [pcolor != blue] of livo and [pcolor != blue] of pravo and [pcolor != blue] of desno
+    [
+      
+      ;;Livo 1.opcija
+      if [brPosjeta] of livo < [brPosjeta] of desno and [brPosjeta] of livo < [brPosjeta] of pravo
+      [
+        lt 90
+        naprijed
+      ]
+      
+      ;;Desno 1.opcija
+      if [brPosjeta] of desno < [brPosjeta] of livo and [brPosjeta] of desno < [brPosjeta] of pravo
+      [
+        rt 90
+        naprijed
+      ]
+      ;;Pravo 1.opcija
+      if [brPosjeta] of pravo < [brPosjeta] of livo and [brPosjeta] of pravo < [brPosjeta] of desno
+      [
+        naprijed
+      ]
+      
+      
+      ;;Pravo i livo 1.opcija
+      if [brPosjeta] of pravo < [brPosjeta] of desno and [brPosjeta] of livo = [brPosjeta] of pravo
+      [
+        let r 0
+        random-seed new-seed
+        set r random 2
+        ifelse r = 0 [lt 90 naprijed][naprijed]
+      ]
+      
+      ;;Pravo i desno 1.opcija
+      if [brPosjeta] of pravo < [brPosjeta] of livo and [brPosjeta] of pravo = [brPosjeta] of desno
+      [
+        let r 0
+        random-seed new-seed
+        set r random 2
+        ifelse r = 0 [rt 90 naprijed][naprijed]
+      ]
+      
+      ;;Livo i desno 1.opcija
+      if [brPosjeta] of livo < [brPosjeta] of pravo and [brPosjeta] of livo = [brPosjeta] of desno
+      [
+        let r 0
+        random-seed new-seed
+        set r random 2
+        ifelse r = 0 [rt 90 naprijed][lt 90 naprijed]
+      ] 
+      
+      ;;Livo i pravo i desno 1.opcija
+      if [brPosjeta] of livo = [brPosjeta] of desno and [brPosjeta] of livo = [brPosjeta] of pravo
+      [
+        let r 0
+        random-seed new-seed
+        set r random 3
+        if r = 0 [lt 90 naprijed]
+        if r = 1 [naprijed]
+        if r = 2 [rt 90 naprijed]
+      ]
+    ]
+    
+    ;;Slobodno pravo i livo
+    if [pcolor != blue] of livo and [pcolor != blue] of pravo and [pcolor = blue] of desno
+    [   
+      
+      ;;Livo 1.opcija
+      if [brPosjeta] of livo < [brPosjeta] of pravo
+      [
+        lt 90
+        naprijed
+      ]
+      
+      ;;Pravo 1.opcija
+      if [brPosjeta] of pravo < [brPosjeta] of livo
+      [
+        naprijed
+      ]   
+      
+      ;;Livo i pravo 1.opcija
+      if [brPosjeta] of pravo = [brPosjeta] of livo
+      [
+        let r 0
+        random-seed new-seed
+        set r random 2
+        ifelse r = 0 [lt 90 naprijed][naprijed]
+      ]
+    ]
+    ;;Slobodno pravo i desno
+    if [pcolor = blue] of livo and [pcolor != blue] of pravo and [pcolor != blue] of desno
+    [   
+      
+      ;;Pravo 1.opcija
+      if [brPosjeta] of pravo < [brPosjeta] of desno
+      [
+        naprijed
+      ]
+      
+      ;;Desno 1.opcija
+      if [brPosjeta] of desno < [brPosjeta] of pravo
+      [
+        set heading (heading + 90)
+        naprijed
+      ]  
+      ;;Desno i pravo 1.opcija
+      if [brPosjeta] of pravo = [brPosjeta] of desno
+      [
+        let r 0
+        random-seed new-seed
+        set r random 2
+        ifelse r = 0 [      set heading (heading + 90) naprijed][naprijed]
+      ]
+    ]
+    
+    ;;Slobodno livo i desno
+    if [pcolor != blue] of livo and [pcolor = blue] of pravo and [pcolor != blue] of desno
+    [
+      
+      ;;Livo 1.opcija
+      if [brPosjeta] of livo < [brPosjeta] of desno
+      [
+        lt 90
+        naprijed
+      ]
+      
+      ;;Desno 1.opcija
+      if [brPosjeta] of desno < [brPosjeta] of livo
+      [
+        rt 90
+        naprijed
+      ]     
+      
+      ;;Desno i livo 1.opcija
+      if [brPosjeta] of desno = [brPosjeta] of livo
+      [
+        let r 0
+        random-seed new-seed
+        set r random 3
+        ifelse r = 1 [rt 90 naprijed][lt 90 naprijed]
+      ]
+    ]
+    
+    ;;Slobodno naprid
+    if [pcolor = blue] of livo and [pcolor != blue] of pravo and [pcolor = blue] of desno 
+    [
+      naprijed
+    ]
+    
+    ;;Slobodno livo
+    if [pcolor != blue] of livo and [pcolor = blue] of pravo and [pcolor = blue] of desno
+    [
+      lt 90
+      naprijed
+    ]
+    
+    ;;Slobodno desno
+    if [pcolor = blue] of livo and [pcolor = blue] of pravo and [pcolor != blue] of desno 
+    [
+      rt 90
+      naprijed
+    ]
+    
+    ;;Zauzeto sve
+    if [pcolor = blue] of livo and [pcolor = blue] of pravo and [pcolor = blue] of desno 
+    [
+      rt 180
+      naprijed
+    ]
+  ]
+  
+end
